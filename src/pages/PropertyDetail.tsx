@@ -1,55 +1,78 @@
 
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Home, Users, Calendar, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, MapPin, Home, Users, Mail, Phone, Calendar, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import Header from '../components/Header';
 
-// Mock property data
-const getPropertyById = (id: string) => {
-  const properties = {
-    '1': {
-      id: 1,
-      title: "2-værelses lejlighed boliggrunde centralt i Odense",
-      location: "Odense",
-      price: "8.500 kr./mdr.",
-      rooms: 2,
-      size: "65 m²",
-      available: true,
-      images: [
-        "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=600&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&h=400&fit=crop"
-      ],
-      description: "Karakteristik: 2-værelses lejlighed boliggrunde centralt i Odense. 2 soveværelser. Ejere, køkken. Krav: begrænset antal personer. I umiddelbares nærheden skal være adgangsvej fra ejer til kød, fortrins til regioner eller af regionslov af hjemmeadresse og adgang til og regioner eller af regelskabelse med et fælles hjemmeadresse med et fælles gladbevidsthed.",
-      details: {
-        rooms: 2,
-        floor: 2,
-        size: "65 m²",
-        deposit: "25.500 kr.",
-        prepaid: "8.500 kr.",
-        heating: "4.500 kr./år",
-        available: "1. juni 2025"
-      },
-      landlord: {
-        name: "MEJBolig ApS",
-        phone: "+45 12 34 56 78",
-        email: "udlejning@mejbolig.dk"
-      }
-    }
-  };
-  return properties[id as keyof typeof properties];
-};
+// Mock data - same as in Index.tsx
+const properties = [
+  {
+    id: 1,
+    title: "2-værelses lejlighed boliggrunde centralt i Odense",
+    location: "Odense",
+    price: "8.500 kr./mdr.",
+    rooms: 2,
+    size: "65 m²",
+    available: true,
+    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop",
+    description: "Smuk 2-værelses lejlighed beliggende centralt i Odense. Lejligheden er nyistandsat og indeholder moderne køkken, stort badeværelse og lys stue med udgang til altan.",
+    address: "Nørregade 15, 5000 Odense C",
+    moveInDate: "1. marts 2024",
+    deposit: "25.500 kr.",
+    prepaid: "8.500 kr.",
+    landlord: {
+      name: "Lars Andersen",
+      phone: "+45 12 34 56 78",
+      email: "lars@mejbolig.dk"
+    },
+    features: [
+      "Nyistandsat",
+      "Altan",
+      "Moderne køkken",
+      "Tæt på offentlig transport",
+      "Parkering"
+    ]
+  },
+  {
+    id: 2,
+    title: "3-værelses lejlighed København",
+    location: "København",
+    price: "12.500 kr./mdr.",
+    rooms: 3,
+    size: "85 m²",
+    available: false,
+    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop",
+    description: "Rummelig 3-værelses lejlighed i hjertet af København. Perfekt til familier med god plads og lys fra alle sider.",
+    address: "Vesterbrogade 45, 1620 København V",
+    moveInDate: "Udlejet",
+    deposit: "37.500 kr.",
+    prepaid: "12.500 kr.",
+    landlord: {
+      name: "Marie Nielsen",
+      phone: "+45 87 65 43 21",
+      email: "marie@mejbolig.dk"
+    },
+    features: [
+      "3 værelser",
+      "Balkon",
+      "Opvaskemaskine",
+      "Central beliggenhed",
+      "Elevator"
+    ]
+  }
+];
 
 const PropertyDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const property = getPropertyById(id || '1');
-  const [currentImage, setCurrentImage] = useState(0);
-  const [formData, setFormData] = useState({
+  const { id } = useParams();
+  const property = properties.find(p => p.id === parseInt(id || '0'));
+  
+  const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
     phone: '',
@@ -60,30 +83,25 @@ const PropertyDetail = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="max-w-6xl mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold">Bolig ikke fundet</h1>
-          <Link to="/">
-            <Button className="mt-4">Tilbage til forsiden</Button>
+        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+          <h1 className="text-2xl font-bold mb-4">Bolig ikke fundet</h1>
+          <Link to="/" className="text-orange-500 hover:text-orange-600">
+            Tilbage til forsiden
           </Link>
         </div>
       </div>
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (property.available) {
-      toast({
-        title: "Besked sendt!",
-        description: "Vi har modtaget din besked og vender tilbage hurtigst muligt.",
-      });
-    } else {
-      toast({
-        title: "Tilmeldt venteliste!",
-        description: "Du er nu tilmeldt ventelisten for denne bolig.",
-      });
-    }
-    setFormData({ name: '', email: '', phone: '', message: '' });
+    toast({
+      title: property.available ? "Besked sendt!" : "Tilmeldt venteliste!",
+      description: property.available 
+        ? "Vi har sendt din besked til udlejeren. De kontakter dig hurtigst muligt."
+        : "Vi har tilmeldt dig ventelisten for denne bolig.",
+    });
+    setContactForm({ name: '', email: '', phone: '', message: '' });
   };
 
   return (
@@ -98,167 +116,174 @@ const PropertyDetail = () => {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Images and Details */}
-          <div className="lg:col-span-2">
-            {/* Image Gallery */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-              <div className="relative">
-                <img 
-                  src={property.images[currentImage]} 
-                  alt={property.title}
-                  className="w-full h-96 object-cover"
-                />
-                <div className="absolute top-4 right-4">
-                  <Badge 
-                    variant={property.available ? "default" : "destructive"}
-                    className={property.available ? "bg-green-500" : "bg-red-500"}
-                  >
-                    {property.available ? "Ledig" : "Udlejet"}
-                  </Badge>
-                </div>
-              </div>
-              
-              {/* Thumbnail Gallery */}
-              <div className="flex gap-2 p-4">
-                {property.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImage(index)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                      currentImage === index ? 'border-orange-500' : 'border-gray-200'
-                    }`}
-                  >
-                    <img src={image} alt={`View ${index + 1}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Property Image */}
+            <div className="relative">
+              <img 
+                src={property.image} 
+                alt={property.title}
+                className="w-full h-96 object-cover rounded-lg"
+              />
+              <div className="absolute top-4 right-4">
+                <Badge 
+                  variant={property.available ? "default" : "destructive"}
+                  className={property.available ? "bg-green-500" : "bg-red-500"}
+                >
+                  {property.available ? "Ledig" : "Udlejet"}
+                </Badge>
               </div>
             </div>
 
             {/* Property Details */}
             <Card>
               <CardHeader>
-                <CardTitle>Detaljer om bolig</CardTitle>
+                <CardTitle className="text-2xl">{property.title}</CardTitle>
+                <div className="flex items-center text-gray-600">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  <span>{property.address}</span>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Værelser</span>
-                    <span className="font-medium">{property.details.rooms}</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="flex items-center">
+                    <Home className="h-5 w-5 text-orange-500 mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">Værelser</p>
+                      <p className="font-semibold">{property.rooms}</p>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Etage</span>
-                    <span className="font-medium">{property.details.floor}</span>
+                  <div className="flex items-center">
+                    <Users className="h-5 w-5 text-orange-500 mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">Størrelse</p>
+                      <p className="font-semibold">{property.size}</p>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Størrelse</span>
-                    <span className="font-medium">{property.details.size}</span>
+                  <div className="flex items-center">
+                    <Calendar className="h-5 w-5 text-orange-500 mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">Indflytning</p>
+                      <p className="font-semibold">{property.moveInDate}</p>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Depositum</span>
-                    <span className="font-medium">{property.details.deposit}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Forudbetalt</span>
-                    <span className="font-medium">{property.details.prepaid}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Varme</span>
-                    <span className="font-medium">{property.details.heating}</span>
+                </div>
+
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3">Beskrivelse</h3>
+                  <p className="text-gray-600 leading-relaxed">{property.description}</p>
+                </div>
+
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3">Faciliteter</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {property.features.map((feature, index) => (
+                      <div key={index} className="flex items-center">
+                        <Check className="h-4 w-4 text-green-500 mr-2" />
+                        <span className="text-sm text-gray-600">{feature}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Description */}
-            <Card className="mt-6">
+            {/* Pricing */}
+            <Card>
               <CardHeader>
-                <CardTitle>Beskrivelse</CardTitle>
+                <CardTitle>Priser</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 leading-relaxed">{property.description}</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Månedlig husleje</p>
+                    <p className="text-2xl font-bold text-slate-800">{property.price}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Depositum</p>
+                    <p className="text-lg font-semibold">{property.deposit}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Forudbetaling</p>
+                    <p className="text-lg font-semibold">{property.prepaid}</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Right Column - Contact Form */}
-          <div>
-            <Card className="sticky top-24">
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Contact Form */}
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{property.title}</span>
+                <CardTitle>
+                  {property.available ? "Kontakt udlejer" : "Tilmeld venteliste"}
                 </CardTitle>
-                <div className="flex items-center text-gray-600">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  <span>{property.location}</span>
-                </div>
-                <div className="text-2xl font-bold text-slate-800">
-                  {property.price}
-                </div>
               </CardHeader>
-              
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Input
-                      placeholder="Navn"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="tel"
-                      placeholder="Telefon"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Textarea
-                      placeholder="Besked..."
-                      value={formData.message}
-                      onChange={(e) => setFormData({...formData, message: e.target.value})}
-                      rows={4}
-                    />
-                  </div>
+                <form onSubmit={handleContactSubmit} className="space-y-4">
+                  <Input
+                    placeholder="Dit navn"
+                    value={contactForm.name}
+                    onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                    required
+                  />
+                  <Input
+                    type="email"
+                    placeholder="Din email"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+                    required
+                  />
+                  <Input
+                    type="tel"
+                    placeholder="Dit telefonnummer"
+                    value={contactForm.phone}
+                    onChange={(e) => setContactForm({...contactForm, phone: e.target.value})}
+                    required
+                  />
+                  <Textarea
+                    placeholder={property.available ? "Skriv en besked til udlejeren..." : "Fortæl kort om dig selv..."}
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                    rows={4}
+                    required
+                  />
                   <Button 
                     type="submit" 
                     className="w-full bg-orange-500 hover:bg-orange-600 text-white"
                   >
-                    {property.available ? "Kontakt udlejer" : "Tilmeld venteliste"}
+                    {property.available ? "Send besked" : "Tilmeld venteliste"}
                   </Button>
                 </form>
-
-                {/* Landlord Contact */}
-                <div className="mt-6 pt-6 border-t">
-                  <h3 className="font-semibold mb-3">Kontakt udlejer</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center">
-                      <User className="h-4 w-4 mr-2 text-gray-400" />
-                      <span>{property.landlord.name}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Phone className="h-4 w-4 mr-2 text-gray-400" />
-                      <span>{property.landlord.phone}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Mail className="h-4 w-4 mr-2 text-gray-400" />
-                      <span>{property.landlord.email}</span>
-                    </div>
-                  </div>
-                </div>
               </CardContent>
             </Card>
+
+            {/* Landlord Info */}
+            {property.available && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Udlejer information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 text-gray-400 mr-2" />
+                      <span className="text-sm">{property.landlord.name}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Phone className="h-4 w-4 text-gray-400 mr-2" />
+                      <span className="text-sm">{property.landlord.phone}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Mail className="h-4 w-4 text-gray-400 mr-2" />
+                      <span className="text-sm">{property.landlord.email}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

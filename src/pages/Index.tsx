@@ -92,7 +92,7 @@ const Index = () => {
                 <SelectValue placeholder="Vælg lokation" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Alle lokationer</SelectItem>
+                <SelectItem value="alle">Alle lokationer</SelectItem>
                 <SelectItem value="Odense">Odense</SelectItem>
                 <SelectItem value="København">København</SelectItem>
                 <SelectItem value="Aarhus">Aarhus</SelectItem>
@@ -103,7 +103,7 @@ const Index = () => {
                 <SelectValue placeholder="Antal værelser" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Alle</SelectItem>
+                <SelectItem value="alle">Alle</SelectItem>
                 <SelectItem value="1">1 værelse</SelectItem>
                 <SelectItem value="2">2 værelser</SelectItem>
                 <SelectItem value="3">3+ værelser</SelectItem>
