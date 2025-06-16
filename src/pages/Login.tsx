@@ -17,8 +17,8 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Dummy authentication - accept any non-empty email and password
-    if (formData.email.trim() && formData.password.trim()) {
+    // Check for specific admin credentials
+    if (formData.email === 'admin@admin.dk' && formData.password === '123') {
       // Store simple auth state in localStorage
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userEmail', formData.email);
@@ -31,7 +31,7 @@ const Login = () => {
     } else {
       toast({
         title: "Login fejlede",
-        description: "Indtast venligst både email og adgangskode.",
+        description: "Forkert email eller adgangskode. Brug admin@admin.dk / 123",
         variant: "destructive"
       });
     }
@@ -53,7 +53,7 @@ const Login = () => {
             </div>
             <CardTitle className="text-2xl font-bold">Ejer Login</CardTitle>
             <p className="text-gray-600">Log ind for at administrere dine ejendomme</p>
-            <p className="text-sm text-gray-500 mt-2">Brug vilkårlig email og adgangskode for demo</p>
+            <p className="text-sm text-gray-500 mt-2">Brug admin@admin.dk / 123</p>
           </CardHeader>
           
           <CardContent>
