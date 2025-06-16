@@ -1,15 +1,12 @@
 
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, MapPin, Home, Users, Mail } from 'lucide-react';
+import { Home, Users, Mail } from 'lucide-react';
 import Header from '../components/Header';
 import PropertyCard from '../components/PropertyCard';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Mock data for properties
-const properties = [
+// Mock data for featured properties (just showing 3 newest)
+const featuredProperties = [
   {
     id: 1,
     title: "2-værelses lejlighed boliggrunde centralt i Odense",
@@ -43,18 +40,6 @@ const properties = [
 ];
 
 const Index = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [selectedRooms, setSelectedRooms] = useState('');
-
-  const filteredProperties = properties.filter(property => {
-    return (
-      property.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (selectedLocation === '' || property.location === selectedLocation) &&
-      (selectedRooms === '' || property.rooms.toString() === selectedRooms)
-    );
-  });
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -67,63 +52,40 @@ const Index = () => {
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Find dit næste hjem eller administrer dine ejendomme med vores moderne platform
           </p>
-          <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white">
-            Find din bolig
-          </Button>
+          <Link to="/find-bolig">
+            <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white">
+              Find din bolig
+            </Button>
+          </Link>
         </div>
       </section>
 
-      {/* Search Section */}
+      {/* Featured Properties Section */}
       <section className="max-w-6xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-6">Søg efter boliger</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Søg efter bolig..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-              <SelectTrigger>
-                <SelectValue placeholder="Vælg lokation" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="alle">Alle lokationer</SelectItem>
-                <SelectItem value="Odense">Odense</SelectItem>
-                <SelectItem value="København">København</SelectItem>
-                <SelectItem value="Aarhus">Aarhus</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={selectedRooms} onValueChange={setSelectedRooms}>
-              <SelectTrigger>
-                <SelectValue placeholder="Antal værelser" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="alle">Alle</SelectItem>
-                <SelectItem value="1">1 værelse</SelectItem>
-                <SelectItem value="2">2 værelser</SelectItem>
-                <SelectItem value="3">3+ værelser</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-              Søg
-            </Button>
-          </div>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold mb-4">Nyeste boliger</h2>
+          <p className="text-gray-600 mb-6">Se vores senest tilføjede boliger</p>
         </div>
 
         {/* Properties Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filteredProperties.map((property) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {featuredProperties.map((property) => (
             <PropertyCard key={property.id} property={property} />
           ))}
         </div>
 
-        {/* Welcome Section */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
+        <div className="text-center">
+          <Link to="/find-bolig">
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+              Se alle boliger
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Welcome Section */}
+      <div className="max-w-6xl mx-auto px-4 mb-12">
+        <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-3xl font-bold mb-4">Velkommen til MEJBolig</h2>
@@ -133,9 +95,11 @@ const Index = () => {
                 funktive funktioner. Vi tilbyder dig at udforske for alle leve omgivelser at 
                 udelive, samt optimalen veje til byen og området omkring.
               </p>
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                Læs mere
-              </Button>
+              <Link to="/om-os">
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+                  Læs mere
+                </Button>
+              </Link>
             </div>
             <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
               <img 
@@ -146,9 +110,11 @@ const Index = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      {/* Stats Section */}
+      <section className="max-w-6xl mx-auto px-4 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white rounded-lg shadow-lg p-6 text-center">
             <Home className="h-12 w-12 text-orange-500 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2">132</h3>

@@ -21,16 +21,16 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="hover:text-orange-500 transition-colors">
+            <Link to="/find-bolig" className="hover:text-orange-500 transition-colors">
               Find bolig
             </Link>
-            <Link to="/properties" className="hover:text-orange-500 transition-colors">
+            <Link to="/information-til-lejere" className="hover:text-orange-500 transition-colors">
               Information til lejere
             </Link>
-            <Link to="/about" className="hover:text-orange-500 transition-colors">
+            <Link to="/om-os" className="hover:text-orange-500 transition-colors">
               Om os
             </Link>
-            <Link to="/contact" className="hover:text-orange-500 transition-colors">
+            <Link to="/kontakt" className="hover:text-orange-500 transition-colors">
               Kontakt
             </Link>
           </nav>
@@ -58,16 +58,16 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-slate-700">
             <nav className="flex flex-col space-y-4">
-              <Link to="/" className="hover:text-orange-500 transition-colors">
+              <Link to="/find-bolig" className="hover:text-orange-500 transition-colors">
                 Find bolig
               </Link>
-              <Link to="/properties" className="hover:text-orange-500 transition-colors">
+              <Link to="/information-til-lejere" className="hover:text-orange-500 transition-colors">
                 Information til lejere
               </Link>
-              <Link to="/about" className="hover:text-orange-500 transition-colors">
+              <Link to="/om-os" className="hover:text-orange-500 transition-colors">
                 Om os
               </Link>
-              <Link to="/contact" className="hover:text-orange-500 transition-colors">
+              <Link to="/kontakt" className="hover:text-orange-500 transition-colors">
                 Kontakt
               </Link>
               <Link to="/login">
