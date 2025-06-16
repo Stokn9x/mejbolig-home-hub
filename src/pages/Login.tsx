@@ -24,7 +24,7 @@ const Login = () => {
       localStorage.setItem('userEmail', formData.email);
       
       toast({
-        title: "Login succesfuld!",
+        title: "Login successful!",
         description: "Velkommen til din dashboard.",
       });
       navigate('/dashboard');
@@ -66,7 +66,6 @@ const Login = () => {
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                   className="pl-10"
-                  required
                 />
               </div>
               
@@ -78,7 +77,6 @@ const Login = () => {
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="pl-10"
-                  required
                 />
               </div>
               
