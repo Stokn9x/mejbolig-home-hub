@@ -16,8 +16,13 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock authentication - in real app this would connect to backend
-    if (formData.email && formData.password) {
+    
+    // Dummy authentication - accept any non-empty email and password
+    if (formData.email.trim() && formData.password.trim()) {
+      // Store simple auth state in localStorage
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', formData.email);
+      
       toast({
         title: "Login succesfuld!",
         description: "Velkommen til din dashboard.",
@@ -26,7 +31,7 @@ const Login = () => {
     } else {
       toast({
         title: "Login fejlede",
-        description: "Kontroller dine loginoplysninger.",
+        description: "Indtast venligst både email og adgangskode.",
         variant: "destructive"
       });
     }
@@ -48,6 +53,7 @@ const Login = () => {
             </div>
             <CardTitle className="text-2xl font-bold">Ejer Login</CardTitle>
             <p className="text-gray-600">Log ind for at administrere dine ejendomme</p>
+            <p className="text-sm text-gray-500 mt-2">Brug vilkårlig email og adgangskode for demo</p>
           </CardHeader>
           
           <CardContent>
