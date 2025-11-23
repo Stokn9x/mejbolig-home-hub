@@ -36,6 +36,11 @@
 
     --radius: 0.5rem;
 
+    --navy: 210 30% 15%;
+    --navy-foreground: 0 0% 100%;
+    --orange: 25 95% 53%;
+    --orange-foreground: 0 0% 100%;
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
