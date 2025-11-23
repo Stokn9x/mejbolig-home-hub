@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,24 +15,28 @@ const Login = () => {
     password: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check for specific admin credentials
-    if (formData.email === 'admin@admin.dk' && formData.password === '123') {
-      // Store simple auth state in localStorage
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', formData.email);
-      
-      toast({
-        title: "Login successful!",
-        description: "Velkommen til din dashboard.",
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
       });
-      navigate('/dashboard');
-    } else {
+
+      if (error) throw error;
+
+      if (data.user) {
+        toast({
+          title: "Login successful!",
+          description: "Velkommen til din dashboard.",
+        });
+        navigate('/dashboard');
+      }
+    } catch (error: any) {
       toast({
         title: "Login fejlede",
-        description: "Forkert email eller adgangskode. Brug admin@admin.dk / 123",
+        description: error.message || "Forkert email eller adgangskode",
         variant: "destructive"
       });
     }
@@ -53,7 +58,7 @@ const Login = () => {
             </div>
             <CardTitle className="text-2xl font-bold">Ejer Login</CardTitle>
             <p className="text-gray-600">Log ind for at administrere dine ejendomme</p>
-            <p className="text-sm text-gray-500 mt-2">Brug admin@admin.dk / 123</p>
+            <p className="text-sm text-gray-500 mt-2">Log ind med din email og adgangskode</p>
           </CardHeader>
           
           <CardContent>
