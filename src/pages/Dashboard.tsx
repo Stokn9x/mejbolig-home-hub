@@ -1,14 +1,17 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Search, Plus, Home, Users, MessageSquare, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
+import PropertyForm from '@/components/PropertyForm';
+import { supabase } from '@/lib/supabase';
 
 // Mock data for dashboard
 const dashboardData = {
@@ -57,14 +60,45 @@ const dashboardData = {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [propertyCount, setPropertyCount] = useState(0);
 
   // Check authentication
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    if (!isAuthenticated) {
-      navigate('/login');
-    }
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login');
+      } else {
+        fetchProperties();
+      }
+    };
+    
+    checkAuth();
   }, [navigate]);
+
+  const fetchProperties = async () => {
+    const { data, count } = await supabase
+      .from('properties')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false });
+
+    if (data) {
+      setProperties(data);
+      setPropertyCount(count || 0);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
+
+  const handlePropertyAdded = () => {
+    setIsDialogOpen(false);
+    fetchProperties();
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -97,7 +131,7 @@ const Dashboard = () => {
                   <CardTitle className="text-sm font-medium">Total Ejendomme</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{dashboardData.stats.totalProperties}</div>
+                  <div className="text-2xl font-bold">{propertyCount}</div>
                 </CardContent>
               </Card>
 
@@ -106,16 +140,20 @@ const Dashboard = () => {
                   <CardTitle className="text-sm font-medium">Ledige Boliger</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">{dashboardData.stats.availableProperties}</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {properties.filter(p => p.available).length}
+                  </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Aktive Lejere</CardTitle>
+                  <CardTitle className="text-sm font-medium">Udlejede Boliger</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-blue-600">{dashboardData.stats.totalTenants}</div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {properties.filter(p => !p.available).length}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -140,9 +178,19 @@ const Dashboard = () => {
               <TabsContent value="properties" className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold">Mine Ejendomme</h2>
-                  <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                    Tilføj Ejendom
-                  </Button>
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-orange hover:bg-orange/90 text-orange-foreground">
+                        Tilføj Ejendom
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Tilføj ny bolig</DialogTitle>
+                      </DialogHeader>
+                      <PropertyForm onSuccess={handlePropertyAdded} />
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
                 <div className="relative">
@@ -156,21 +204,22 @@ const Dashboard = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {dashboardData.properties.map((property) => (
+                  {properties.map((property) => (
                     <Card key={property.id}>
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-4 mb-2">
                               <h3 className="text-lg font-semibold">{property.title}</h3>
-                              {getStatusBadge(property.status)}
+                              {property.available ? (
+                                <Badge className="bg-green-500">Ledig</Badge>
+                              ) : (
+                                <Badge className="bg-blue-500">Udlejet</Badge>
+                              )}
                             </div>
                             <p className="text-gray-600 mb-1">{property.location}</p>
                             <p className="text-lg font-bold text-slate-800">{property.price}</p>
-                            {property.tenant && (
-                              <p className="text-sm text-gray-600 mt-2">Lejer: {property.tenant}</p>
-                            )}
-                            <p className="text-sm text-gray-600">Venteliste: {property.waitlist} personer</p>
+                            <p className="text-sm text-gray-600">{property.rooms} værelser • {property.size}</p>
                           </div>
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm">
@@ -184,6 +233,13 @@ const Dashboard = () => {
                       </CardContent>
                     </Card>
                   ))}
+                  {properties.length === 0 && (
+                    <Card>
+                      <CardContent className="p-6 text-center">
+                        <p className="text-gray-600">Ingen ejendomme endnu. Tilføj din første ejendom!</p>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </TabsContent>
 
