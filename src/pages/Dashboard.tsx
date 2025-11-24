@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Search, Plus, Home, Users, MessageSquare, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -182,9 +182,11 @@ const Dashboard = () => {
                             <Button variant="outline" size="sm">
                               Rediger
                             </Button>
-                            <Button variant="outline" size="sm">
-                              Se detaljer
-                            </Button>
+                            <Link to={`/property/${property.id}`}>
+                              <Button variant="outline" size="sm">
+                                Se detaljer
+                              </Button>
+                            </Link>
                           </div>
                         </div>
                       </CardContent>

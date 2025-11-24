@@ -1,7 +1,6 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Home, Users, Mail, Phone, Calendar, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Home, Users, Mail, Phone, Calendar, Check, Building2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,68 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import Header from '../components/Header';
-
-// Mock data - same as in Index.tsx
-const properties = [
-  {
-    id: 1,
-    title: "2-værelses lejlighed boliggrunde centralt i Odense",
-    location: "Odense",
-    price: "8.500 kr./mdr.",
-    rooms: 2,
-    size: "65 m²",
-    available: true,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop",
-    description: "Smuk 2-værelses lejlighed beliggende centralt i Odense. Lejligheden er nyistandsat og indeholder moderne køkken, stort badeværelse og lys stue med udgang til altan.",
-    address: "Nørregade 15, 5000 Odense C",
-    moveInDate: "1. marts 2024",
-    deposit: "25.500 kr.",
-    prepaid: "8.500 kr.",
-    landlord: {
-      name: "Lars Andersen",
-      phone: "+45 12 34 56 78",
-      email: "lars@mejbolig.dk"
-    },
-    features: [
-      "Nyistandsat",
-      "Altan",
-      "Moderne køkken",
-      "Tæt på offentlig transport",
-      "Parkering"
-    ]
-  },
-  {
-    id: 2,
-    title: "3-værelses lejlighed København",
-    location: "København",
-    price: "12.500 kr./mdr.",
-    rooms: 3,
-    size: "85 m²",
-    available: false,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop",
-    description: "Rummelig 3-værelses lejlighed i hjertet af København. Perfekt til familier med god plads og lys fra alle sider.",
-    address: "Vesterbrogade 45, 1620 København V",
-    moveInDate: "Udlejet",
-    deposit: "37.500 kr.",
-    prepaid: "12.500 kr.",
-    landlord: {
-      name: "Marie Nielsen",
-      phone: "+45 87 65 43 21",
-      email: "marie@mejbolig.dk"
-    },
-    features: [
-      "3 værelser",
-      "Balkon",
-      "Opvaskemaskine",
-      "Central beliggenhed",
-      "Elevator"
-    ]
-  }
-];
+import { supabase } from '@/lib/supabase';
 
 const PropertyDetail = () => {
   const { id } = useParams();
-  const property = properties.find(p => p.id === parseInt(id || '0'));
+  const [property, setProperty] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   
   const [contactForm, setContactForm] = useState({
     name: '',
@@ -79,14 +22,44 @@ const PropertyDetail = () => {
     message: ''
   });
 
+  useEffect(() => {
+    fetchProperty();
+  }, [id]);
+
+  const fetchProperty = async () => {
+    if (!id) return;
+    
+    const { data, error } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (data && !error) {
+      setProperty(data);
+    }
+    setLoading(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+          <p className="text-muted-foreground">Indlæser...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!property) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="max-w-4xl mx-auto px-4 py-12 text-center">
           <h1 className="text-2xl font-bold mb-4">Bolig ikke fundet</h1>
-          <Link to="/" className="text-orange-500 hover:text-orange-600">
-            Tilbage til forsiden
+          <Link to="/find-bolig" className="text-orange hover:text-orange/90">
+            Tilbage til søgning
           </Link>
         </div>
       </div>
@@ -105,12 +78,12 @@ const PropertyDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Back Button */}
-        <Link to="/" className="inline-flex items-center text-slate-600 hover:text-slate-800 mb-6">
+        <Link to="/find-bolig" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Tilbage til søgning
         </Link>
@@ -121,7 +94,7 @@ const PropertyDetail = () => {
             {/* Property Image */}
             <div className="relative">
               <img 
-                src={property.image} 
+                src={property.image_url || "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=1200&h=600&fit=crop"} 
                 alt={property.title}
                 className="w-full h-96 object-cover rounded-lg"
               />
@@ -139,48 +112,124 @@ const PropertyDetail = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-2xl">{property.title}</CardTitle>
-                <div className="flex items-center text-gray-600">
+                <div className="flex items-center text-muted-foreground">
                   <MapPin className="h-4 w-4 mr-1" />
-                  <span>{property.address}</span>
+                  <span>{property.address || property.location}</span>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div className="flex items-center">
-                    <Home className="h-5 w-5 text-orange-500 mr-2" />
+                    <Home className="h-5 w-5 text-orange mr-2" />
                     <div>
-                      <p className="text-sm text-gray-600">Værelser</p>
-                      <p className="font-semibold">{property.rooms}</p>
+                      <p className="text-sm text-muted-foreground">Værelser</p>
+                      <p className="font-semibold text-foreground">{property.rooms}</p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <Users className="h-5 w-5 text-orange-500 mr-2" />
+                    <Building2 className="h-5 w-5 text-orange mr-2" />
                     <div>
-                      <p className="text-sm text-gray-600">Størrelse</p>
-                      <p className="font-semibold">{property.size}</p>
+                      <p className="text-sm text-muted-foreground">Størrelse</p>
+                      <p className="font-semibold text-foreground">{property.size}</p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <Calendar className="h-5 w-5 text-orange-500 mr-2" />
+                    <Calendar className="h-5 w-5 text-orange mr-2" />
                     <div>
-                      <p className="text-sm text-gray-600">Indflytning</p>
-                      <p className="font-semibold">{property.moveInDate}</p>
+                      <p className="text-sm text-muted-foreground">Indflytning</p>
+                      <p className="font-semibold text-foreground">{property.move_in_date || 'Efter aftale'}</p>
                     </div>
                   </div>
                 </div>
 
+                {property.description && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-3">Beskrivelse</h3>
+                    <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+                  </div>
+                )}
+
+                {/* Property Details Section */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3">Beskrivelse</h3>
-                  <p className="text-gray-600 leading-relaxed">{property.description}</p>
+                  <h3 className="text-lg font-semibold mb-3">Detaljer om bolig</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {property.apartment_type && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Boligtype</p>
+                        <p className="font-medium text-foreground">{property.apartment_type}</p>
+                      </div>
+                    )}
+                    {property.floor && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Etage</p>
+                        <p className="font-medium text-foreground">{property.floor}</p>
+                      </div>
+                    )}
+                    {property.year_built && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Opført år</p>
+                        <p className="font-medium text-foreground">{property.year_built}</p>
+                      </div>
+                    )}
+                    {property.energy_rating && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Energimærke</p>
+                        <p className="font-medium text-foreground">{property.energy_rating}</p>
+                      </div>
+                    )}
+                    {property.heating_type && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Opvarmning</p>
+                        <p className="font-medium text-foreground">{property.heating_type}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
+                {/* Features */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-3">Faciliteter</h3>
                   <div className="grid grid-cols-2 gap-2">
-                    {property.features.map((feature, index) => (
+                    {property.elevator && (
+                      <div className="flex items-center">
+                        <Check className="h-4 w-4 text-green-500 mr-2" />
+                        <span className="text-sm text-muted-foreground">Elevator</span>
+                      </div>
+                    )}
+                    {property.furnished && (
+                      <div className="flex items-center">
+                        <Check className="h-4 w-4 text-green-500 mr-2" />
+                        <span className="text-sm text-muted-foreground">Møbleret</span>
+                      </div>
+                    )}
+                    {property.balcony && (
+                      <div className="flex items-center">
+                        <Check className="h-4 w-4 text-green-500 mr-2" />
+                        <span className="text-sm text-muted-foreground">Altan/Balkon</span>
+                      </div>
+                    )}
+                    {property.parking && (
+                      <div className="flex items-center">
+                        <Check className="h-4 w-4 text-green-500 mr-2" />
+                        <span className="text-sm text-muted-foreground">Parkering</span>
+                      </div>
+                    )}
+                    {property.pets_allowed && (
+                      <div className="flex items-center">
+                        <Check className="h-4 w-4 text-green-500 mr-2" />
+                        <span className="text-sm text-muted-foreground">Kæledyr tilladt</span>
+                      </div>
+                    )}
+                    {property.utilities_included && (
+                      <div className="flex items-center">
+                        <Check className="h-4 w-4 text-green-500 mr-2" />
+                        <span className="text-sm text-muted-foreground">Forbrug inkluderet</span>
+                      </div>
+                    )}
+                    {property.features && property.features.length > 0 && property.features.map((feature: string, index: number) => (
                       <div key={index} className="flex items-center">
                         <Check className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-sm text-gray-600">{feature}</span>
+                        <span className="text-sm text-muted-foreground">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -191,22 +240,26 @@ const PropertyDetail = () => {
             {/* Pricing */}
             <Card>
               <CardHeader>
-                <CardTitle>Priser</CardTitle>
+                <CardTitle>Detaljer om udlejning</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Månedlig husleje</p>
-                    <p className="text-2xl font-bold text-slate-800">{property.price}</p>
+                    <p className="text-sm text-muted-foreground">Månedlig leje</p>
+                    <p className="text-2xl font-bold text-foreground">{property.price}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Depositum</p>
-                    <p className="text-lg font-semibold">{property.deposit}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Forudbetaling</p>
-                    <p className="text-lg font-semibold">{property.prepaid}</p>
-                  </div>
+                  {property.deposit && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Depositum</p>
+                      <p className="text-lg font-semibold text-foreground">{property.deposit}</p>
+                    </div>
+                  )}
+                  {property.prepaid_rent && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Forudbetaling</p>
+                      <p className="text-lg font-semibold text-foreground">{property.prepaid_rent}</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -252,7 +305,7 @@ const PropertyDetail = () => {
                   />
                   <Button 
                     type="submit" 
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                    className="w-full bg-orange hover:bg-orange/90 text-orange-foreground"
                   >
                     {property.available ? "Send besked" : "Tilmeld venteliste"}
                   </Button>
@@ -264,21 +317,17 @@ const PropertyDetail = () => {
             {property.available && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Udlejer information</CardTitle>
+                  <CardTitle>Om udlejeren</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center">
-                      <Users className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-sm">{property.landlord.name}</span>
+                      <Users className="h-4 w-4 text-muted-foreground mr-2" />
+                      <span className="text-sm">MEJBolig ApS</span>
                     </div>
                     <div className="flex items-center">
-                      <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-sm">{property.landlord.phone}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-sm">{property.landlord.email}</span>
+                      <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+                      <span className="text-sm">kontakt@mejbolig.dk</span>
                     </div>
                   </div>
                 </CardContent>
