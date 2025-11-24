@@ -16,43 +16,91 @@ export type Database = {
     Tables: {
       properties: {
         Row: {
+          address: string | null
+          apartment_type: string | null
           available: boolean
+          balcony: boolean | null
           created_at: string
+          deposit: string | null
           description: string | null
+          elevator: boolean | null
+          energy_rating: string | null
+          features: string[] | null
+          floor: string | null
+          furnished: boolean | null
+          heating_type: string | null
           id: string
           image_url: string | null
           location: string
+          move_in_date: string | null
+          parking: boolean | null
+          pets_allowed: boolean | null
+          prepaid_rent: string | null
           price: string
           rooms: number
           size: string
           title: string
           updated_at: string
+          utilities_included: boolean | null
+          year_built: string | null
         }
         Insert: {
+          address?: string | null
+          apartment_type?: string | null
           available?: boolean
+          balcony?: boolean | null
           created_at?: string
+          deposit?: string | null
           description?: string | null
+          elevator?: boolean | null
+          energy_rating?: string | null
+          features?: string[] | null
+          floor?: string | null
+          furnished?: boolean | null
+          heating_type?: string | null
           id?: string
           image_url?: string | null
           location: string
+          move_in_date?: string | null
+          parking?: boolean | null
+          pets_allowed?: boolean | null
+          prepaid_rent?: string | null
           price: string
           rooms: number
           size: string
           title: string
           updated_at?: string
+          utilities_included?: boolean | null
+          year_built?: string | null
         }
         Update: {
+          address?: string | null
+          apartment_type?: string | null
           available?: boolean
+          balcony?: boolean | null
           created_at?: string
+          deposit?: string | null
           description?: string | null
+          elevator?: boolean | null
+          energy_rating?: string | null
+          features?: string[] | null
+          floor?: string | null
+          furnished?: boolean | null
+          heating_type?: string | null
           id?: string
           image_url?: string | null
           location?: string
+          move_in_date?: string | null
+          parking?: boolean | null
+          pets_allowed?: boolean | null
+          prepaid_rent?: string | null
           price?: string
           rooms?: number
           size?: string
           title?: string
           updated_at?: string
+          utilities_included?: boolean | null
+          year_built?: string | null
         }
         Relationships: []
       }
