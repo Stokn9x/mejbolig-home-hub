@@ -1,60 +1,42 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import Header from '../components/Header';
 import PropertyCard from '../components/PropertyCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-// Mock data for all properties
-const properties = [
-  {
-    id: 1,
-    title: "2-værelses lejlighed boliggrunde centralt i Odense",
-    location: "Odense",
-    price: "8.500 kr./mdr.",
-    rooms: 2,
-    size: "65 m²",
-    available: true,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop"
-  },
-  {
-    id: 2,
-    title: "3-værelses lejlighed København",
-    location: "København",
-    price: "12.500 kr./mdr.",
-    rooms: 3,
-    size: "85 m²",
-    available: false,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop"
-  },
-  {
-    id: 3,
-    title: "1-værelses lejlighed Aarhus",
-    location: "Aarhus",
-    price: "6.500 kr./mdr.",
-    rooms: 1,
-    size: "45 m²",
-    available: true,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop"
-  },
-  {
-    id: 4,
-    title: "4-værelses hus i Aalborg",
-    location: "Aalborg",
-    price: "15.000 kr./mdr.",
-    rooms: 4,
-    size: "120 m²",
-    available: true,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop"
-  }
-];
+import { supabase } from '@/lib/supabase';
 
 const FindBolig = () => {
+  const [properties, setProperties] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedRooms, setSelectedRooms] = useState('');
+
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const fetchProperties = async () => {
+    const { data, error } = await supabase
+      .from('properties')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (data && !error) {
+      const transformedData = data.map(prop => ({
+        id: prop.id,
+        title: prop.title,
+        location: prop.location,
+        price: prop.price,
+        rooms: prop.rooms,
+        size: prop.size,
+        available: prop.available,
+        image: prop.image_url || "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop"
+      }));
+      setProperties(transformedData);
+    }
+  };
 
   const filteredProperties = properties.filter(property => {
     return (

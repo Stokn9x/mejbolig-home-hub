@@ -13,49 +13,6 @@ import { AppSidebar } from '@/components/AppSidebar';
 import PropertyForm from '@/components/PropertyForm';
 import { supabase } from '@/lib/supabase';
 
-// Mock data for dashboard
-const dashboardData = {
-  stats: {
-    totalProperties: 12,
-    availableProperties: 3,
-    totalTenants: 28,
-    waitlistCount: 15
-  },
-  properties: [
-    {
-      id: 1,
-      title: "2-værelses centralt i Odense",
-      location: "Odense",
-      price: "8.500 kr./mdr.",
-      status: "available",
-      tenant: null,
-      waitlist: 5
-    },
-    {
-      id: 2,
-      title: "3-værelses København",
-      location: "København", 
-      price: "12.500 kr./mdr.",
-      status: "occupied",
-      tenant: "Lars Nielsen",
-      waitlist: 8
-    },
-    {
-      id: 3,
-      title: "1-værelses Aarhus",
-      location: "Aarhus",
-      price: "6.500 kr./mdr.",
-      status: "available", 
-      tenant: null,
-      waitlist: 2
-    }
-  ],
-  waitlist: [
-    { id: 1, name: "Anna Larsen", email: "anna@email.dk", property: "2-værelses centralt i Odense", date: "2025-01-10" },
-    { id: 2, name: "Peter Hansen", email: "peter@email.dk", property: "3-værelses København", date: "2025-01-12" },
-    { id: 3, name: "Maria Jensen", email: "maria@email.dk", property: "1-værelses Aarhus", date: "2025-01-15" }
-  ]
-};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -162,7 +119,7 @@ const Dashboard = () => {
                   <CardTitle className="text-sm font-medium">Venteliste</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-orange-600">{dashboardData.stats.waitlistCount}</div>
+                  <div className="text-2xl font-bold text-orange-600">0</div>
                 </CardContent>
               </Card>
             </div>
@@ -246,35 +203,13 @@ const Dashboard = () => {
               <TabsContent value="waitlist" className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold">Venteliste</h2>
-                  <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                    Send Email til Alle
-                  </Button>
                 </div>
 
-                <div className="space-y-4">
-                  {dashboardData.waitlist.map((person) => (
-                    <Card key={person.id}>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold">{person.name}</h3>
-                            <p className="text-gray-600">{person.email}</p>
-                            <p className="text-sm text-gray-500">Interesseret i: {person.property}</p>
-                            <p className="text-sm text-gray-500">Tilmeldt: {person.date}</p>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
-                              Send Email
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              Fjern
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <p className="text-gray-600">Ingen personer på ventelisten endnu.</p>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               <TabsContent value="messages" className="space-y-4">
